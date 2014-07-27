@@ -1,0 +1,30 @@
+.gameobject {
+    color:  green;
+}
+
+.gametext {
+    color: #00FF21;
+    font-family: "Courier New", Courier, monospace;
+}
+
+#gameframe {
+    position: absolute;
+    width: 640px;
+    height: 480px;
+}
+
+#ship {
+    background-image: url('images/ship.png');
+    width: 16px;
+    height: 16px;
+}
+
+.star {
+    background-color: green;
+    width: 8px;
+    height: 8px;
+}
+
+.star-start {
+
+}
