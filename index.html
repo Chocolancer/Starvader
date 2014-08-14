@@ -4,18 +4,12 @@
 </head>
 <body style="background: black;">
 	<div id="gameframe">
-		<div id="score">
-			<h3></h3>
-		</div>
-		<div id="lives">
-			<img src="./images/ship.png"/>
-			<img src="./images/ship.png"/>
-			<img src="./images/ship.png"/>
-			<img src="./images/ship.png"/>
-			<img src="./images/ship.png"/>
-		</div>
+		<div id="score" class="gametext"><h3>0</h3></div>
+		<div id="lives"></div>
+		<div id="starcontainer"></div>
+		<div id="mookcontainer"></div>
 		<div id="gametitle" class="gametext">
-			<h4>STARVADER</h4>
+			<h4>STARVADER ~ VELOCITY STG</h4>
 		</div>
 		<div id="gameinstructions" class="gametext">
 			<h5>WASD - MOVE, SPC - FIRE</h5>
@@ -26,7 +20,8 @@
 		<div id="gamecredit" class="gametext">
 			<h5>c2014 CHOCOLANCER</h5>
 		</div>
-		<div id="ship"></div>
+		<div id="displaymook"></div>
+		<div id="ship" class="fixed"></div>
 	</div>
 	<script src="./scripts/jquery.min.js"></script>
 	<script src="./scripts/jquery.velocity.min.js"></script>

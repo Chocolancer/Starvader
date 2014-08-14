@@ -1,63 +1,45 @@
 
-var Ship = function(x, y) {
+var Ship = function(shipEl, x, y) {
+    this.shipEl = shipEl;
     this.bindKeys();
 };
 
 Ship.prototype = {
-    x: 10,
-    y: 10,
     shipEl: $('#ship'),
     bindKeys: function() {
         $(document).on('keydown', function(event) {
-            var keycode = (event.keyCode ? event.keyCode : event.which);
-            switch (keycode) {
-                case 87:
-                    // if (DEBUG)
-                    //     alert("Moving up");
-                    this.shipEl.velocity({
-                        properties: {
-                            top: this.shipEl.top - 1
-                        },
-                        options: {
-                            duration: 1,
-                            loop: true
-                        }
-                    });
-                    break;
-                case 65:
-                    if (DEBUG)
-                        alert("Moving left");
-                    break;
-                case 83:
-                    if (DEBUG)
-                        alert("Moving down");
-                    break;
-                case 68:
-                    if (DEBUG)
-                        alert("Moving right");
-                    break;
-            }
-        });
+            if (eventManager.events.gameStart && eventManager.events.playerAlive)
+            {
+                var keycode = (event.keyCode ? event.keyCode : event.which),
+                    shipPosition = ship.shipEl.position();
 
-        $(document).on('keyup', function(event) {
-            var keycode = (event.keyCode ? event.keyCode : event.which);
-            switch (keycode) {
-                case 87:
-                    if (DEBUG)
-                        alert("Stopped moving up");
-                    break;
-                case 65:
-                    if (DEBUG)
-                        alert("Stopped moving left");
-                    break;
-                case 83:
-                    if (DEBUG)
-                        alert("Stopped moving down");
-                    break;
-                case 68:
-                    if (DEBUG)
-                        alert("Stopped moving right");
-                    break;
+                if (shipPosition.left >= 0 || 
+                    shipPosition.top >= 0 || 
+                    (shipPosition.left + shipPosition.width()) <= gameFrame.width() || 
+                    (shipPosition.top + shipPosition.height()) <= gameFrame.height()) {
+                    switch (keycode) {
+                        case 87:
+                            ship.shipEl.velocity({
+                                properties: { top: '-=2' }, options: { duration: 2 }
+                            });
+                            break;
+                        case 65:
+                            ship.shipEl.velocity({
+                                properties: { left: '-=2' }, options: { duration: 2 }
+                            });
+                            break;
+                        case 83:
+                            ship.shipEl.velocity({
+                                properties: { top: '+=2' }, options: { duration: 2 }
+                            });
+                            break;
+                        case 68:
+                            ship.shipEl.velocity({
+                                properties: { left: '+=2' }, options: { duration: 2 }
+                            });
+                            break;
+                    }
+                }
             }
         });
 
