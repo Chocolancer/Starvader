@@ -1,3 +1,5 @@
+// STARVADER: A simple shoot-'em-up using DOM in jQuery and Velocity.js
+// Copyright 2014 Chocolancer; MIT License: http://opensource.org/licenses/MIT
 
 var EventManager = function(callbacks) {
 
@@ -7,10 +9,10 @@ var EventManager = function(callbacks) {
                 this.eventCallbacks[cb] = callbacks[cb];
     else
         if (DEBUG)
-            alert("Event manager has no callbacks!");
+            console.log("Event manager has no callbacks!");
 
     if (DEBUG)
-        alert("Event manager initiated!");
+        console.log("Event manager initiated!");
 };
 
 EventManager.prototype = {

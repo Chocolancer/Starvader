@@ -1,31 +1,100 @@
-var DEBUG = false,
-    gameFrame = $('#gameframe'),
-    ship = new Ship($('#ship'), 0, 0),
-    mooks
+// STARVADER: A simple shoot-'em-up using DOM in jQuery and Velocity.js
+// Copyright 2014 Chocolancer; MIT License: http://opensource.org/licenses/MIT
 
-var resetCallback = function() {
-    if (DEBUG)
-        alert("Reset callback has been hit.");
+// KEYS AND LOGICAL CONSTANTS
+var DEBUG = true,
+    KEYCODES = {
+        UP: 87,
+        DOWN: 83,
+        LEFT: 65,
+        RIGHT: 68,
+        FIRE: 32,
+        PAUSE: 112,
+        START: 13
+    },
+    KEYS_HELD = {
+        87: false,
+        83: false,
+        65: false,
+        68: false
+    },
+    GAMEFRAME;
 
-    // show display elements
-    $('#gametitle').velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
-    $('#gameinstructions').velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
-    $('#gameprompt').velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
-    $('#gamecredit').velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
-    $('#displaymook').velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
+$(document).on('ready', function(event) {
+    var gameFrameEl             = $('#gameframe'),
+        gameTitleEl             = $('#gametitle'),
+        gameInstructionsEl      = $('#gameinstructions'),
+        gameStartPromptEl       = $('#gameprompt'),
+        gameCreditEl            = $('#gamecredit'),
+        shipBulletContainerEl   = $('#bulletcontainer'),
+        shipLivesContainerEl    = $('#lives'),
+        mookContainerEl         = $('#mookcontainer'),
+        mookBulletContainerEl   = $('#mookbulletcontainer'),
+        mookEl                  = $('#mook'),
+        shipEl                  = $('#ship'),
+        ship,
+        eventManager;
+
+    debugger;
+    GAMEFRAME = {
+        TOP: gameFrameEl.position().top,
+        BOTTOM: gameFrameEl.height(),
+        LEFT: gameFrameEl.position().left,
+        RIGHT: gameFrameEl.width()
+    };
+
+    eventManager = new EventManager({
+        idle: function() {
+            if (DEBUG)
+                console.log("Reset callback has been hit.");
+
+            // show display elements
+            gameTitleEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
+            gameInstructionsEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
+            gameStartPromptEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
+            gameCreditEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
+            mookEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
+        },
+        gameStart: function() {
+            if (DEBUG)
+                console.log("Start callback has been hit.");
+
+            ship = new Ship(shipEl, shipBulletContainerEl, shipLivesContainerEl, 5, 
+                (GAMEFRAME.RIGHT / 2) - shipEl.width(), GAMEFRAME.BOTTOM - (shipEl.height() * 2));
+            ship.bindKeys(ship, eventManager);
+
+            gameTitleEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
+            gameInstructionsEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
+            gameStartPromptEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
+            gameCreditEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
+            mookEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
+        },
+        pause: function() {
+            if (DEBUG)
+                console.log("Pause callback has been hit.");
+        },
+        unpause: function() {
+            if (DEBUG)
+                console.log("Unpause callback has been hit.");
+        },
+        playerAlive: function() {
+            if (DEBUG)
+                console.log("Player alive callback has been hit.");
+        },
+        playerDead: function() {
+            if (DEBUG)
+                console.log("Player dead callback has been hit.");
+
+            ship.die();
+        }
+    });
 
     $(document).on('keypress', function(event) {
-        var keycode = (event.keyCode ? event.keyCode : event.which);
-        switch (keycode) {
-            case 13:
-                if (DEBUG)
-                    alert("Gamestart event on");
+        switch (event.keyCode) {
+            case KEYCODES.START:
                 eventManager.startGame();
                 break;
-            case 112:
-                if (DEBUG)
-                    alert("Pause event on");
-
+            case KEYCODES.PAUSE:
                 if (eventManager.event.pause)
                     eventManager.unpause();
                 else
@@ -33,48 +102,6 @@ var resetCallback = function() {
                 break;
         }
     });
-};
 
-var pauseCallback = function() {
-
-};
-
-var unpauseCallback = function() {
-
-};
-
-var defaultCallback = function() {
-    if (DEBUG)
-        alert("This event doesn't have a callback function yet...");
-};
-
-var startGameCallback = function() {
-    $('#gametitle').velocity ({ properties: { opacity: 0 }, options: { duration: 1 } });
-    $('#gameinstructions').velocity ({ properties: { opacity: 0 }, options: { duration: 1 } });
-    $('#gameprompt').velocity ({ properties: { opacity: 0 }, options: { duration: 1 } });
-    $('#gamecredit').velocity ({ properties: { opacity: 0 }, options: { duration: 1 } });
-    $('#displaymook').velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
-
-    for (var i = 0; i < 5; i++) {
-        $('#lives').append('<img src="./images/ship.png"/>');
-    }
-};
-
-var eventCallbacks = {
-    idle: resetCallback,
-    pause: defaultCallback,
-    unpause: defaultCallback,
-    gameStart: startGameCallback,
-    playerAlive: defaultCallback,
-    playerDead: defaultCallback
-};
-
-var eventManager = new EventManager(eventCallbacks),
-    ship;
-    
-
-$(document).on('ready', function(event) {
     eventManager.reset();
 });
-
-// beginLoop();
