@@ -6,7 +6,6 @@ var StarGenerator = function(starContainer) {
 };
 
 StarGenerator.prototype = {
-    starContainerEl: $('#starcontainer'),
     generateStars: function(starGenerator) {
         
     }

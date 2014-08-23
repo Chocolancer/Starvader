@@ -21,7 +21,8 @@ var DEBUG = true,
     GAMEFRAME;
 
 $(document).on('ready', function(event) {
-    var gameFrameEl             = $('#gameframe'),
+    var scoreEl                 = $('#score'),
+        gameFrameEl             = $('#gameframe'),
         gameTitleEl             = $('#gametitle'),
         gameInstructionsEl      = $('#gameinstructions'),
         gameStartPromptEl       = $('#gameprompt'),
@@ -35,7 +36,6 @@ $(document).on('ready', function(event) {
         ship,
         eventManager;
 
-    debugger;
     GAMEFRAME = {
         TOP: gameFrameEl.position().top,
         BOTTOM: gameFrameEl.height(),
@@ -68,6 +68,11 @@ $(document).on('ready', function(event) {
             gameStartPromptEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
             gameCreditEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
             mookEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
+
+            scoreEl.velocity({ properties: { left: GAMETEXT.LEFT + 5, top: GAMETEXT.TOP + 5 }, options: { duration: 1 } });
+            scoreEl
+
+            shipLivesContainerEl.velocity({ properties: { left: GAMETEXT.RIGHT / 2, top: GAMETEXT.TOP + 5 }, options: { duration: 1 } });
         },
         pause: function() {
             if (DEBUG)
