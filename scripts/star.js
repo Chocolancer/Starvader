@@ -3,10 +3,19 @@
 
 var StarGenerator = function(starContainer) {
     this.starContainerEl = starContainer;
+
+    if (DEBUG)
+        console.log("Star generator created.");
 };
 
 StarGenerator.prototype = {
     generateStars: function(starGenerator) {
         
+    },
+    pause: function() {
+
+    },
+    unpause: function() {
+
     }
 };

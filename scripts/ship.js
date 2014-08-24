@@ -1,22 +1,26 @@
 // STARVADER: A simple shoot-'em-up using DOM in jQuery and Velocity.js
 // Copyright 2014 Chocolancer; MIT License: http://opensource.org/licenses/MIT
 
-var Ship = function(shipEl, bulletContainer, livesContainer, lives, x, y) {
+var Ship = function(shipEl, scoreEl, bulletContainer, livesContainer, lives, x, y) {
     this.shipEl = shipEl;
+    this.scoreEl = scoreEl;
     this.bulletContainerEl = bulletContainer;
     this.livesContainerEl = livesContainer;
 
     for (var i = 0; i < lives; i++)
         this.livesContainerEl.append('<img src="./images/ship.png"/>');
 
+    this.scoreEl.append(this.score);
     this.shipEl.velocity({ properties: { left: x, top: y }, options: { duration: 1 } });
+
+    this.shipCollisionChecker = setInterval(this.checkShipComponentCollisions(), 20);
 
     if (DEBUG)
         console.log("Ship object created.");
 };
 
 Ship.prototype = {
-    bulletsFired: 0,
+    score: 0,
     bindKeys: function(shipContext, eventManager) {
         $(document).on('keydown', function(event) {
             if (eventManager.events.gameStart && eventManager.events.playerAlive && !eventManager.events.pause) {
@@ -35,8 +39,7 @@ Ship.prototype = {
         $(document).on('keypress', function(event) {
             if (eventManager.events.gameStart && eventManager.events.playerAlive && !eventManager.events.pause)
                 if (event.keyCode === 32) {
-                    shipContext.bulletsFired++;
-                    shipContext.shoot(shipContext.shipEl, shipContext.bulletContainerEl, shipContext.bulletsFired);
+                    shipContext.shoot(shipContext.shipEl, shipContext.bulletContainerEl);
                 }
         });
     },
@@ -73,8 +76,8 @@ Ship.prototype = {
                 shipEl.velocity({ properties: { left: leftChange }, options: { duration: 2 } });
         }
     },
-    shoot: function(shipEl, bulletContainerEl, bulletsFired) {
-        // if (bulletsFired <= 5) {
+    shoot: function(shipEl, bulletContainerEl) {
+        if (bulletContainerEl.children().length < 5) {
             var shipPosition = shipEl.position();
             bulletContainerEl.append('<div class="fixed bullet"></div>');
 
@@ -82,8 +85,11 @@ Ship.prototype = {
             bulletFocus.velocity( { properties: { left: (shipPosition.left + (shipEl.width() / 2)) - bulletFocus.width() / 2, top: shipPosition.top - (shipEl.height() / 2) }, options: { duration: 1 }})
                        .velocity( { properties: { opacity: 1 }, options: { duration: 1 }})
                        .velocity( { properties: { top: 0 }, options: { duration: (GAMEFRAME.BOTTOM - shipPosition.top) * 24 }})
-                       .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function() {  } }})
-        // }
+                       .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(bulletEl) { $(bulletEl).remove(); } }});
+        }
+    },
+    checkShipComponentCollisions: function() {
+
     },
     respawn: function(gameCallback) {
         if (DEBUG)
@@ -92,6 +98,12 @@ Ship.prototype = {
     die: function(gameCallback) {
         if (DEBUG)
             console.log("Ship died.");
+    },
+    pause: function() {
+
+    },
+    unpause: function() {
+
     }
 };
 

@@ -31,9 +31,12 @@ $(document).on('ready', function(event) {
         shipLivesContainerEl    = $('#lives'),
         mookContainerEl         = $('#mookcontainer'),
         mookBulletContainerEl   = $('#mookbulletcontainer'),
+        starContainerEl         = $('#starcontainer'),
         mookEl                  = $('#mook'),
         shipEl                  = $('#ship'),
         ship,
+        mookGenerator,
+        starGenerator,
         eventManager;
 
     GAMEFRAME = {
@@ -49,6 +52,7 @@ $(document).on('ready', function(event) {
                 console.log("Reset callback has been hit.");
 
             // show display elements
+            gameFrameEl.removeAttr('class');
             gameTitleEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
             gameInstructionsEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
             gameStartPromptEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
@@ -59,38 +63,55 @@ $(document).on('ready', function(event) {
             if (DEBUG)
                 console.log("Start callback has been hit.");
 
-            ship = new Ship(shipEl, shipBulletContainerEl, shipLivesContainerEl, 5, 
-                (GAMEFRAME.RIGHT / 2) - shipEl.width(), GAMEFRAME.BOTTOM - (shipEl.height() * 2));
-            ship.bindKeys(ship, eventManager);
-
+            // hide display elements + add game border
+            gameFrameEl.attr('class', 'running');
             gameTitleEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
             gameInstructionsEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
             gameStartPromptEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
             gameCreditEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
             mookEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
 
-            scoreEl.velocity({ properties: { left: GAMETEXT.LEFT + 5, top: GAMETEXT.TOP + 5 }, options: { duration: 1 } });
-            scoreEl
+            scoreEl.velocity({ properties: { left: GAMEFRAME.LEFT + 5, top: GAMEFRAME.TOP + 2 }, options: { duration: 1 } });
 
-            shipLivesContainerEl.velocity({ properties: { left: GAMETEXT.RIGHT / 2, top: GAMETEXT.TOP + 5 }, options: { duration: 1 } });
+            shipLivesContainerEl.velocity({ properties: { left: GAMEFRAME.RIGHT / 4, top: GAMEFRAME.TOP + 2 }, options: { duration: 1 } });
+
+            starGenerator = new StarGenerator(starContainerEl);
+            ship = new Ship(shipEl, scoreEl, shipBulletContainerEl, shipLivesContainerEl, 5, 
+                (GAMEFRAME.RIGHT / 2) - shipEl.width(), GAMEFRAME.BOTTOM - (shipEl.height() * 2));
+            mookGenerator = new MookGenerator(mookContainerEl, mookBulletContainerEl);
+
+            ship.bindKeys(ship, eventManager);
         },
         pause: function() {
             if (DEBUG)
                 console.log("Pause callback has been hit.");
+
+            ship.pause();
+            mookGenerator.pause();
+            starGenerator.pause();
         },
         unpause: function() {
             if (DEBUG)
                 console.log("Unpause callback has been hit.");
+
+            ship.pause();
+            mookGenerator.pause();
+            starGenerator.pause();
         },
         playerAlive: function() {
             if (DEBUG)
                 console.log("Player alive callback has been hit.");
+
+            ship.unpause();
+            mookGenerator.unpause();
+            starGenerator.unpause();
         },
         playerDead: function() {
             if (DEBUG)
                 console.log("Player dead callback has been hit.");
 
             ship.die();
+            mookGenerator.killAllMooks();
         }
     });
 
