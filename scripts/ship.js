@@ -38,7 +38,7 @@ Ship.prototype = {
 
         $(document).on('keypress', function(event) {
             if (eventManager.events.gameStart && eventManager.events.playerAlive && !eventManager.events.pause)
-                if (event.keyCode === 32) {
+                if (event.keyCode === 32 || event.which == 32) {
                     shipContext.shoot(shipContext.shipEl, shipContext.bulletContainerEl);
                 }
         });
@@ -77,7 +77,7 @@ Ship.prototype = {
         }
     },
     shoot: function(shipEl, bulletContainerEl) {
-        if (bulletContainerEl.children().length < 5) {
+        if (bulletContainerEl.children().length < MAX_BULLETS_ONSCREEN) {
             var shipPosition = shipEl.position();
             bulletContainerEl.append('<div class="fixed bullet"></div>');
 

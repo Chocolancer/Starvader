@@ -6,8 +6,8 @@ var MookGenerator = function(mookContainer, mookBulletContainerEl) {
     this.mookBulletContainerEl = mookBulletContainerEl;
     this.difficultySlider = 25;
 
-    // start timer
-    this.mookGenerateTimer = setInterval(this.generateMook(this), 3000);
+    // start generating. Each interval call randomly changes interval time.
+    this.generateMook(this);
 
     if (DEBUG)
         console.log("Mook generator created.");
@@ -15,20 +15,37 @@ var MookGenerator = function(mookContainer, mookBulletContainerEl) {
 
 MookGenerator.prototype = {
     generateMook: function(mookGeneratorContext) {
-        var mookContainerEl = mookGeneratorContext.mookContainerEl,
-            randomX = Math.ceil(Math.random() * (GAMEFRAME.RIGHT - 5)),
-            randomSpeed = Math.ceil(Math.random() * 10000 + 2000);
+        var me = mookGeneratorContext,
+            mookContainerEl = me.mookContainerEl,
+            randomX = Math.ceil(Math.random() * GAMEFRAME.RIGHT),
+            randomSpeed = Math.ceil(Math.random() * 10000 + 2000),
+            randomInterval = Math.ceil(Math.random() * 3000 + 750);
 
-        mookContainerEl.append('<div class="mook fixed"></div>');
+        if (me.mookGenerateTimer)
+            clearInterval(me.mookGenerateTimer);
 
-        var mookFocus = $(mookContainerEl.selector + ' .mook').last();
-        mookFocus.velocity( { properties: { left: randomX, top: GAMEFRAME.TOP + 5 }, options: { duration: 1 }})
-                 .velocity( { properties: { opacity: 1 }, options: { duration: 1 }})
-                 .velocity( { properties: { top: GAMEFRAME.BOTTOM - 16 }, options: { duration: randomSpeed }})
-                 .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(mookEl) { $(mookEl).remove(); } }});
+        me.mookGenerateTimer = setInterval(function() { me.generateMook(me); }, randomInterval);
+
+        if (mookContainerEl.children().length <= MAX_MOOKS) {
+            mookContainerEl.append('<div class="mook fixed"></div>');
+
+            var mookFocus = $(mookContainerEl.selector + ' .mook').last();
+            mookFocus.velocity( { properties: { left: randomX, top: GAMEFRAME.TOP + 5 }, options: { duration: 1 }})
+                     .velocity( { properties: { opacity: 1 }, options: { duration: 1 }})
+                     .velocity( { properties: { top: GAMEFRAME.BOTTOM - mookFocus.height() }, options: { duration: randomSpeed }})
+                     .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(mookEl) { $(mookEl).remove(); } }});
+        }
     },
-    killAllMooks: function() {
+    killMook: function() { //adds destroy effect to mook
 
+    },
+    removeAllMooks: function(mookContainerEl) { //unceremoniously removes the mook element
+        debugger;
+        var mooksEl = mookContainerEl.children();
+
+        for (var i = 0; i < mookContainerEl.length; i++) {
+            
+        }
     },
     pause: function() {
 

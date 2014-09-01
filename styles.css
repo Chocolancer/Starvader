@@ -42,9 +42,9 @@
 }
 
 .star {
-    background-color: green;
-    width: 8px;
-    height: 8px;
+    background-color: #00FF21;
+    width: 2px;
+    height: 6px;
 }
 
 .bullet {

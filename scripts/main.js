@@ -3,6 +3,10 @@
 
 // KEYS AND LOGICAL CONSTANTS
 var DEBUG = true,
+    SCREEN_OFFSET = 10,
+    MAX_STARS = 30,
+    MAX_MOOKS = 15,
+    MAX_BULLETS_ONSCREEN = 5,
     KEYCODES = {
         UP: 87,
         DOWN: 83,
@@ -41,9 +45,9 @@ $(document).on('ready', function(event) {
 
     GAMEFRAME = {
         TOP: gameFrameEl.position().top,
-        BOTTOM: gameFrameEl.height(),
+        BOTTOM: gameFrameEl.height() - SCREEN_OFFSET,
         LEFT: gameFrameEl.position().left,
-        RIGHT: gameFrameEl.width()
+        RIGHT: gameFrameEl.width() - SCREEN_OFFSET
     };
 
     eventManager = new EventManager({
@@ -111,7 +115,7 @@ $(document).on('ready', function(event) {
                 console.log("Player dead callback has been hit.");
 
             ship.die();
-            mookGenerator.killAllMooks();
+            mookGenerator.killAllMooks(mookContainerEl);
         }
     });
 
