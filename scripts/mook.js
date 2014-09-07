@@ -39,13 +39,16 @@ MookGenerator.prototype = {
     killMook: function() { //adds destroy effect to mook
 
     },
-    removeAllMooks: function(mookContainerEl) { //unceremoniously removes the mook element
+    removeAllMooks: function(mookGeneratorContext) { //unceremoniously removes the mook element
         debugger;
-        var mooksEl = mookContainerEl.children();
+        var me = mookGeneratorContext;
+            mooksEl = me.mookContainerEl.children();
+            mooksBulletsEl = me.mookBulletContainerEl.children();
 
-        for (var i = 0; i < mookContainerEl.length; i++) {
-            
-        }
+        for (var mookEl in mooksEl)
+            mookEl.remove();
+        for (var mookBulletEl in mooksBulletsEl)
+            mookBulletEl[j].remove();
     },
     pause: function() {
 

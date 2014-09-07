@@ -85,6 +85,7 @@ $(document).on('ready', function(event) {
             mookGenerator = new MookGenerator(mookContainerEl, mookBulletContainerEl);
 
             ship.bindKeys(ship, eventManager);
+            ship.bindCollisions(ship, eventManager);
         },
         pause: function() {
             if (DEBUG)
@@ -106,16 +107,15 @@ $(document).on('ready', function(event) {
             if (DEBUG)
                 console.log("Player alive callback has been hit.");
 
-            ship.unpause();
-            mookGenerator.unpause();
-            starGenerator.unpause();
+            ship.respawn();
+            mookGenerator.generateMook(mookGenerator);
         },
         playerDead: function() {
             if (DEBUG)
                 console.log("Player dead callback has been hit.");
 
-            ship.die();
-            mookGenerator.killAllMooks(mookContainerEl);
+            ship.die(ship);
+            mookGenerator.killAllMooks(mookGenerator);
         }
     });
 

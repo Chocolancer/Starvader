@@ -13,8 +13,6 @@ var Ship = function(shipEl, scoreEl, bulletContainer, livesContainer, lives, x, 
     this.scoreEl.append(this.score);
     this.shipEl.velocity({ properties: { left: x, top: y }, options: { duration: 1 } });
 
-    this.shipCollisionChecker = setInterval(this.checkShipComponentCollisions(), 20);
-
     if (DEBUG)
         console.log("Ship object created.");
 };
@@ -88,16 +86,31 @@ Ship.prototype = {
                        .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(bulletEl) { $(bulletEl).remove(); } }});
         }
     },
-    checkShipComponentCollisions: function() {
+    bindCollisions: function(shipContext, eventManager) {
+        var me = shipContext;
+        me.shipCollisionChecker = setInterval(function() {
+            if (me.checkShipCollision(me.shipEl))
+                eventManager.killPlayer();
+        }, 20);
+    },
+    checkShipCollision: function(shipEl) {
+        var mookCollision = shipEl.collision('.mook'),
+            mookBulletCollisions = shipEl.collision('.mookbullet'),
+            mookExplosionCollisions = shipEl.collision('.mookbulletexplode');
 
+        return (mookCollision.length > 0 || mookBulletCollisions.length > 0 || mookExplosionCollisions.length > 0);
     },
     respawn: function(gameCallback) {
         if (DEBUG)
             console.log("Ship respawned.");
     },
-    die: function(gameCallback) {
+    die: function(shipContext) {
         if (DEBUG)
             console.log("Ship died.");
+
+        var me = shipContext;
+
+        
     },
     pause: function() {
 
