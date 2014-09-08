@@ -27,6 +27,7 @@ EventManager.prototype = {
         idle: undefined,
         pause: undefined,
         unpause: undefined,
+        mookDead: undefined,
         gameStart: undefined,
         playerAlive: undefined,
         playerDead: undefined
@@ -54,6 +55,9 @@ EventManager.prototype = {
         this.events.playerAlive = false;
         this.events.playerDead = true;
         this.eventCallbacks.playerDead();
+    },
+    killMook: function(mookEl) {
+        this.eventCallbacks.mookDead(mookEl);
     },
     pauseGame: function() {
         this.events.pause = true;

@@ -29,7 +29,7 @@ StarGenerator.prototype = {
             var starFocus = $(starContainerEl.selector + ' .star').last();
             starFocus.velocity( { properties: { left: randomX, top: GAMEFRAME.TOP + 5 }, options: { duration: 1 }})
                      .velocity( { properties: { opacity: 1 }, options: { duration: 1 }})
-                     .velocity( { properties: { top: GAMEFRAME.BOTTOM + SCREEN_OFFSET - starFocus.height()}, options: { duration: randomSpeed }})
+                     .velocity( { properties: { translateY: GAMEFRAME.BOTTOM - SCREEN_OFFSET }, options: { duration: randomSpeed }})
                      .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(starEl) { $(starEl).remove(); } }});
         }
     },

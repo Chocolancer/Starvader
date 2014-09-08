@@ -27,7 +27,7 @@ MookGenerator.prototype = {
         me.mookGenerateTimer = setInterval(function() { me.generateMook(me); }, randomInterval);
 
         if (mookContainerEl.children().length <= MAX_MOOKS) {
-            mookContainerEl.append('<div class="mook fixed"></div>');
+            mookContainerEl.append('<div class="mook fixed normal-size"></div>');
 
             var mookFocus = $(mookContainerEl.selector + ' .mook').last();
             mookFocus.velocity( { properties: { left: randomX, top: GAMEFRAME.TOP + 5 }, options: { duration: 1 }})
@@ -36,8 +36,13 @@ MookGenerator.prototype = {
                      .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(mookEl) { $(mookEl).remove(); } }});
         }
     },
-    killMook: function() { //adds destroy effect to mook
+    killMook: function(mookEl) { //adds destroy effect to mook
+        mookEl.velocity('stop', true);
 
+        //temporary
+        mookEl.remove();
+
+        //TOGGLE_DEATH_ANIMATION(mookEl);
     },
     removeAllMooks: function(mookGeneratorContext) { //unceremoniously removes the mook element
         debugger;
@@ -48,7 +53,7 @@ MookGenerator.prototype = {
         for (var mookEl in mooksEl)
             mookEl.remove();
         for (var mookBulletEl in mooksBulletsEl)
-            mookBulletEl[j].remove();
+            mookBulletEl.remove();
     },
     pause: function() {
 

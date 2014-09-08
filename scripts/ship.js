@@ -86,11 +86,22 @@ Ship.prototype = {
                        .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(bulletEl) { $(bulletEl).remove(); } }});
         }
     },
+    scoreKill: function(shipContext) {
+        var me = shipContext;
+
+        me.score++;
+        me.scoreEl.html(me.score);
+    },
     bindCollisions: function(shipContext, eventManager) {
         var me = shipContext;
+
         me.shipCollisionChecker = setInterval(function() {
             if (me.checkShipCollision(me.shipEl))
                 eventManager.killPlayer();
+        }, 20);
+
+        me.bulletCollisionChecker = setInterval(function() {
+            me.checkBulletCollision(me.bulletContainerEl, eventManager);
         }, 20);
     },
     checkShipCollision: function(shipEl) {
@@ -99,6 +110,19 @@ Ship.prototype = {
             mookExplosionCollisions = shipEl.collision('.mookbulletexplode');
 
         return (mookCollision.length > 0 || mookBulletCollisions.length > 0 || mookExplosionCollisions.length > 0);
+    },
+    checkBulletCollision: function(bulletContainerEl, eventManager) {
+        var bulletsEl = bulletContainerEl.children();
+
+        for (var i = 0; i < bulletsEl.length; i++) {
+            var bulletCollision = $(bulletsEl[i]).collision('.mook');
+
+            if (bulletCollision.length > 0) {
+                bulletsEl[i].remove();
+                for (var j = 0; j < bulletCollision.length; j++)
+                    eventManager.killMook($(bulletCollision[j]));
+            }
+        }
     },
     respawn: function(gameCallback) {
         if (DEBUG)
@@ -109,8 +133,6 @@ Ship.prototype = {
             console.log("Ship died.");
 
         var me = shipContext;
-
-        
     },
     pause: function() {
 

@@ -4,7 +4,7 @@
 // KEYS AND LOGICAL CONSTANTS
 var DEBUG = true,
     SCREEN_OFFSET = 10,
-    MAX_STARS = 30,
+    MAX_STARS = 40,
     MAX_MOOKS = 15,
     MAX_BULLETS_ONSCREEN = 5,
     KEYCODES = {
@@ -22,7 +22,12 @@ var DEBUG = true,
         65: false,
         68: false
     },
-    GAMEFRAME;
+    GAMEFRAME,
+    TOGGLE_DEATH_ANIMATION = function(el, isBig) {
+        var classPrefix = isBig ? '.big-' : '.normal-';
+
+
+    };
 
 $(document).on('ready', function(event) {
     var scoreEl                 = $('#score'),
@@ -80,7 +85,7 @@ $(document).on('ready', function(event) {
             shipLivesContainerEl.velocity({ properties: { left: GAMEFRAME.RIGHT / 4, top: GAMEFRAME.TOP + 2 }, options: { duration: 1 } });
 
             starGenerator = new StarGenerator(starContainerEl);
-            ship = new Ship(shipEl, scoreEl, shipBulletContainerEl, shipLivesContainerEl, 5, 
+            ship = new Ship(shipEl, scoreEl, shipBulletContainerEl, shipLivesContainerEl, 5,
                 (GAMEFRAME.RIGHT / 2) - shipEl.width(), GAMEFRAME.BOTTOM - (shipEl.height() * 2));
             mookGenerator = new MookGenerator(mookContainerEl, mookBulletContainerEl);
 
@@ -116,6 +121,13 @@ $(document).on('ready', function(event) {
 
             ship.die(ship);
             mookGenerator.killAllMooks(mookGenerator);
+        },
+        mookDead: function(mookEl) {
+            if (DEBUG)
+                console.log("Killed a mook.");
+
+            mookGenerator.killMook(mookEl);
+            ship.scoreKill(ship);
         }
     });
 

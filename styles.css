@@ -31,14 +31,44 @@
 
 #ship {
     background-image: url('images/ship.png');
-    width: 16px;
-    height: 16px;
 }
 
 .mook {
     background-image: url('images/mook.png');
+}
+
+.normal-size {
     width: 16px;
     height: 16px;
+}
+
+.big-size {
+    width: 64px;
+    height: 64px;
+}
+
+.normal-deadframe0 {
+    background-image: url('images/die0.png');
+}
+
+.normal-deadframe1 {
+    background-image: url('images/die1.png');
+}
+
+.normal-deadframe2 {
+    background-image: url('images/die2.png');
+}
+
+.big-deadframe0 {
+    background-image: url('images/bigdie0.png');
+}
+
+.big-deadframe1 {
+    background-image: url('images/bigdie1.png');
+}
+
+.big-deadframe2 {
+    background-image: url('images/bigdie2.png');
 }
 
 .star {
