@@ -36,13 +36,10 @@ MookGenerator.prototype = {
                      .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(mookEl) { $(mookEl).remove(); } }});
         }
     },
-    killMook: function(mookEl) { //adds destroy effect to mook
+    killMook: function(mookEl, animHelper) { //adds destroy effect to mook
         mookEl.velocity('stop', true);
 
-        //temporary
-        mookEl.remove();
-
-        //TOGGLE_DEATH_ANIMATION(mookEl);
+        animHelper.addToDeathAnimationQueue(animHelper, mookEl, false);
     },
     removeAllMooks: function(mookGeneratorContext) { //unceremoniously removes the mook element
         debugger;

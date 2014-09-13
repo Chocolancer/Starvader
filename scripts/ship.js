@@ -55,16 +55,16 @@ Ship.prototype = {
             shipEl.velocity('stop', true);
         else {
             if (KEYS_HELD[KEYCODES.UP] && shipPosition.top >= GAMEFRAME.TOP)
-                topChange = '-=2.5';
+                topChange = '-=2.75';
 
             if (KEYS_HELD[KEYCODES.DOWN] && (shipPosition.top + shipEl.height()) <= GAMEFRAME.BOTTOM)
-                topChange = '+=2.5';
+                topChange = '+=2.75';
 
             if (KEYS_HELD[KEYCODES.LEFT] && shipPosition.left >= GAMEFRAME.LEFT)
-                leftChange = '-=2.5';
+                leftChange = '-=2.75';
 
             if (KEYS_HELD[KEYCODES.RIGHT] && (shipPosition.left + shipEl.width()) <= GAMEFRAME.RIGHT)
-                leftChange = '+=2.5';
+                leftChange = '+=2.75';
 
             if (topChange && leftChange)
                 shipEl.velocity({ properties: { left: leftChange, top: topChange }, options: { duration: 2 } });
@@ -82,7 +82,7 @@ Ship.prototype = {
             var bulletFocus = $(bulletContainerEl.selector + ' .bullet').last();
             bulletFocus.velocity( { properties: { left: (shipPosition.left + (shipEl.width() / 2)) - bulletFocus.width() / 2, top: shipPosition.top - (shipEl.height() / 2) }, options: { duration: 1 }})
                        .velocity( { properties: { opacity: 1 }, options: { duration: 1 }})
-                       .velocity( { properties: { top: 0 }, options: { duration: (GAMEFRAME.BOTTOM - shipPosition.top) * 24 }})
+                       .velocity( { properties: { top: 0 }, options: { duration: GAMEFRAME.BOTTOM * (shipPosition.top / GAMEFRAME.BOTTOM) }})
                        .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(bulletEl) { $(bulletEl).remove(); } }});
         }
     },
@@ -109,7 +109,7 @@ Ship.prototype = {
             mookBulletCollisions = shipEl.collision('.mookbullet'),
             mookExplosionCollisions = shipEl.collision('.mookbulletexplode');
 
-        return (mookCollision.length > 0 || mookBulletCollisions.length > 0 || mookExplosionCollisions.length > 0);
+        return (mookCollision.length || mookBulletCollisions.length || mookExplosionCollisions.length);
     },
     checkBulletCollision: function(bulletContainerEl, eventManager) {
         var bulletsEl = bulletContainerEl.children();
@@ -117,7 +117,7 @@ Ship.prototype = {
         for (var i = 0; i < bulletsEl.length; i++) {
             var bulletCollision = $(bulletsEl[i]).collision('.mook');
 
-            if (bulletCollision.length > 0) {
+            if (bulletCollision.length) {
                 bulletsEl[i].remove();
                 for (var j = 0; j < bulletCollision.length; j++)
                     eventManager.killMook($(bulletCollision[j]));
@@ -128,11 +128,14 @@ Ship.prototype = {
         if (DEBUG)
             console.log("Ship respawned.");
     },
-    die: function(shipContext) {
+    die: function(shipContext, animHelper) {
         if (DEBUG)
             console.log("Ship died.");
 
         var me = shipContext;
+
+        me.shipEl.velocity('stop', true);
+        animHelper.addToDeathAnimationQueue(animHelper, me.shipEl, false);
     },
     pause: function() {
 

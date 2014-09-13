@@ -24,7 +24,13 @@ var DEBUG = true,
     },
     GAMEFRAME,
     TOGGLE_DEATH_ANIMATION = function(el, isBig) {
-        var classPrefix = isBig ? '.big-' : '.normal-';
+        var classPrefix = isBig ? '.big-' : '.normal-',
+            animateTimer;
+
+        if (!animateTimer)
+            animateTimer = setInterval(function() {
+
+            }, 500);
 
 
     };
@@ -46,7 +52,8 @@ $(document).on('ready', function(event) {
         ship,
         mookGenerator,
         starGenerator,
-        eventManager;
+        eventManager,
+        animHelper;
 
     GAMEFRAME = {
         TOP: gameFrameEl.position().top,
@@ -67,6 +74,9 @@ $(document).on('ready', function(event) {
             gameStartPromptEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
             gameCreditEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
             mookEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
+
+            if (animHelper)
+                animHelper.stopDeathAnimationCycle(animHelper);
         },
         gameStart: function() {
             if (DEBUG)
@@ -84,6 +94,7 @@ $(document).on('ready', function(event) {
 
             shipLivesContainerEl.velocity({ properties: { left: GAMEFRAME.RIGHT / 4, top: GAMEFRAME.TOP + 2 }, options: { duration: 1 } });
 
+            animHelper = new AnimHelper();
             starGenerator = new StarGenerator(starContainerEl);
             ship = new Ship(shipEl, scoreEl, shipBulletContainerEl, shipLivesContainerEl, 5,
                 (GAMEFRAME.RIGHT / 2) - shipEl.width(), GAMEFRAME.BOTTOM - (shipEl.height() * 2));
@@ -119,14 +130,14 @@ $(document).on('ready', function(event) {
             if (DEBUG)
                 console.log("Player dead callback has been hit.");
 
-            ship.die(ship);
+            ship.die(ship, animHelper);
             mookGenerator.killAllMooks(mookGenerator);
         },
         mookDead: function(mookEl) {
             if (DEBUG)
                 console.log("Killed a mook.");
 
-            mookGenerator.killMook(mookEl);
+            mookGenerator.killMook(mookEl, animHelper);
             ship.scoreKill(ship);
         }
     });
