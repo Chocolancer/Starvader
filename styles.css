@@ -29,12 +29,16 @@
     left: 40%;
 }
 
-#ship {
+.ship {
     background-image: url('images/ship.png');
 }
 
 .mook {
     background-image: url('images/mook.png');
+}
+
+.big-mook {
+    background-image: url('images/bigmook.png');
 }
 
 .normal-size {

@@ -14,7 +14,7 @@ AnimHelper.prototype = {
     startDeathAnimationCycle: function(animHelperContext) {
         var me = animHelperContext;
 
-        me.deathAnimationTimer = setInterval(function() { me.checkDeathAnimations(me); } 1500);
+        me.deathAnimationTimer = setInterval(function() { me.checkDeathAnimations(me); }, DEATH_ANIMATION_INTERVAL);
     },
     stopDeathAnimationCycle: function(animHelperContext) {
         clearInterval(animHelperContext.deathAnimationTimer);
@@ -23,46 +23,46 @@ AnimHelper.prototype = {
         var me = animHelperContext;
 
         if (isBig)
-            me.bigDeathAnimatedEls.add(el);
+            me.bigDeathAnimatedEls.push(el);
         else
-            me.deathAnimatedEls.add(el);
+            me.deathAnimatedEls.push(el);
     },
     checkDeathAnimations: function(animHelperContext) {
         var me = animHelperContext;
 
-        for (var i = 0; i < me.deathAnimatedEls.length; i++) {
-            var focusEl
-            var foundClass = false;
-            var elClass = me.deathAnimatedEls[i].attr('class').split(' ');
+        me.toggleFrames(me, me.deathAnimatedEls, NORMAL_DEADFRAME_CLASSES);
+        me.toggleFrames(me, me.bigDeathAnimatedEls, BIG_DEADFRAME_CLASSES);
+    },
+    toggleFrames: function(animHelperContext, elArray, frames) {
+        var me = animHelperContext;
+        // for each element in the queue, toggle classes which trigger which image to show as part of the death
+        // animation. Remove once it goes through the last toggle
+        for (var i = 0; i < elArray.length; i++) {
+            var focusEl = elArray[i],
+                elClass = focusEl.attr('class').split(' ');
 
-            for (var j = 0; j < elClass.length; j++) {
-                if (elClass[j] === '.normal-deadframe0')
-                    elClass[j] = '.normal-deadframe1';
-                else if (elClass[j] === '.normal-deadframe1')
-                    elClass[j] = '.normal-deadframe2';
-                else if (elClass[j] === '.normal-deadframe2') {
-                    me.deathAnimatedEls[i].remove();
-                    me.deathAnimatedEls.splice(me.deathAnimatedEls[i], 1);
-                }
+            if (elClass.indexOf(frames.FRAME2) !== -1) {
+                elArray[i].remove();
+                elArray.splice(i, 1);
             }
+            else {
+                me.searchAndReplaceClass(elClass, frames.FRAME1, frames.FRAME2);
+                me.searchAndReplaceClass(elClass, frames.FRAME0, frames.FRAME1);
 
+                me.searchAndReplaceClass(elClass, 'big-mook', frames.FRAME0);
+                me.searchAndReplaceClass(elClass, 'mook', frames.FRAME0);
+                me.searchAndReplaceClass(elClass, 'ship', frames.FRAME0);
 
+                focusEl.attr('class', elClass.join(' '));
+            }
         }
-
-        for (var k = 0; k < me.bigDeathAnimatedEls.length; k++) {
-            var elClass = me.deathAnimatedEls[i].attr('class').split(' ');
-
-            for (var l = 0; l < elClass.length; l++) {
-                if (elClass[l] === '.')
-                    elClass[l] = '';
-                else if (elClass[l] === '.')
-                    elClass[l] = '';
-                else if (elClass[l] === '.') {
-                    me.bigDeathAnimatedEls[i].remove();
-                    me.bigDeathAnimatedEls.splice(me.deathAnimatedEls[i], 1);
-                }
-            }
+    },
+    searchAndReplaceClass: function(classArray, classToReplace, replacingClass) {
+        var classIndex = classArray.indexOf(classToReplace);
+        if (classIndex !== -1) {
+            classArray.splice(classIndex, 1);
+            if (replacingClass)
+                classArray.push(replacingClass);
         }
     }
 };
-

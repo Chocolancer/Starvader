@@ -128,14 +128,12 @@ Ship.prototype = {
         if (DEBUG)
             console.log("Ship respawned.");
     },
-    die: function(shipContext, animHelper) {
+    die: function(shipEl, animHelper) {
         if (DEBUG)
             console.log("Ship died.");
 
-        var me = shipContext;
-
-        me.shipEl.velocity('stop', true);
-        animHelper.addToDeathAnimationQueue(animHelper, me.shipEl, false);
+        shipEl.velocity('stop', true);
+        animHelper.addToDeathAnimationQueue(animHelper, shipEl, false);
     },
     pause: function() {
 

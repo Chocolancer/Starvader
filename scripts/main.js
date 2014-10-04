@@ -7,6 +7,7 @@ var DEBUG = true,
     MAX_STARS = 40,
     MAX_MOOKS = 15,
     MAX_BULLETS_ONSCREEN = 5,
+    DEATH_ANIMATION_INTERVAL = 200,
     KEYCODES = {
         UP: 87,
         DOWN: 83,
@@ -21,6 +22,16 @@ var DEBUG = true,
         83: false,
         65: false,
         68: false
+    },
+    NORMAL_DEADFRAME_CLASSES = {
+        FRAME0: 'normal-deadframe0',
+        FRAME1: 'normal-deadframe1',
+        FRAME2: 'normal-deadframe2'
+    },
+    BIG_DEADFRAME_CLASSES = {
+        FRAME0: 'big-deadframe0',
+        FRAME1: 'big-deadframe1',
+        FRAME2: 'big-deadframe2'
     },
     GAMEFRAME,
     TOGGLE_DEATH_ANIMATION = function(el, isBig) {
@@ -47,7 +58,6 @@ $(document).on('ready', function(event) {
         mookContainerEl         = $('#mookcontainer'),
         mookBulletContainerEl   = $('#mookbulletcontainer'),
         starContainerEl         = $('#starcontainer'),
-        mookEl                  = $('#mook'),
         shipEl                  = $('#ship'),
         ship,
         mookGenerator,
@@ -73,7 +83,6 @@ $(document).on('ready', function(event) {
             gameInstructionsEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
             gameStartPromptEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
             gameCreditEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
-            mookEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
 
             if (animHelper)
                 animHelper.stopDeathAnimationCycle(animHelper);
@@ -88,7 +97,6 @@ $(document).on('ready', function(event) {
             gameInstructionsEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
             gameStartPromptEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
             gameCreditEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
-            mookEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
 
             scoreEl.velocity({ properties: { left: GAMEFRAME.LEFT + 5, top: GAMEFRAME.TOP + 2 }, options: { duration: 1 } });
 
@@ -130,12 +138,12 @@ $(document).on('ready', function(event) {
             if (DEBUG)
                 console.log("Player dead callback has been hit.");
 
-            ship.die(ship, animHelper);
-            mookGenerator.killAllMooks(mookGenerator);
+            ship.die(shipEl, animHelper);
+            mookGenerator.killAllMooks(mookGenerator, animHelper);
         },
         mookDead: function(mookEl) {
             if (DEBUG)
-                console.log("Killed a mook.");
+                console.log("Mook killed callback has been hit.");
 
             mookGenerator.killMook(mookEl, animHelper);
             ship.scoreKill(ship);

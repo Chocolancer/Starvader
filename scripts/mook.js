@@ -14,6 +14,7 @@ var MookGenerator = function(mookContainer, mookBulletContainerEl) {
 };
 
 MookGenerator.prototype = {
+    mookGenerateTimer: {},
     generateMook: function(mookGeneratorContext) {
         var me = mookGeneratorContext,
             mookContainerEl = me.mookContainerEl,
@@ -36,21 +37,24 @@ MookGenerator.prototype = {
                      .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(mookEl) { $(mookEl).remove(); } }});
         }
     },
-    killMook: function(mookEl, animHelper) { //adds destroy effect to mook
-        mookEl.velocity('stop', true);
+    killMook: function(mookEl, animHelper) {
+        if (DEBUG)
+            console.log("Mook died.");
 
+        mookEl.velocity('stop', true);
         animHelper.addToDeathAnimationQueue(animHelper, mookEl, false);
     },
-    removeAllMooks: function(mookGeneratorContext) { //unceremoniously removes the mook element
-        debugger;
+    killAllMooks: function(mookGeneratorContext, animHelper) {
         var me = mookGeneratorContext;
             mooksEl = me.mookContainerEl.children();
             mooksBulletsEl = me.mookBulletContainerEl.children();
 
-        for (var mookEl in mooksEl)
-            mookEl.remove();
-        for (var mookBulletEl in mooksBulletsEl)
-            mookBulletEl.remove();
+        clearInterval(me.mookGenerateTimer);
+
+        for (var i = 0; i < mooksBulletsEl.length; i++)
+            mooksBulletsEl[i].remove();
+        for (var j = 0; j < mooksEl.length; j++)
+            me.killMook($(mooksEl[j]), animHelper);
     },
     pause: function() {
 
