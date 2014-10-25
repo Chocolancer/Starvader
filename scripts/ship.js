@@ -1,13 +1,15 @@
 // STARVADER: A simple shoot-'em-up using DOM in jQuery and Velocity.js
 // Copyright 2014 Chocolancer; MIT License: http://opensource.org/licenses/MIT
 
-var Ship = function(shipEl, scoreEl, bulletContainer, livesContainer, lives, x, y) {
+var Ship = function(shipEl, scoreEl, bulletContainer, sfxShipShoot, livesContainer, lives, x, y) {
     this.shipEl = shipEl;
     this.scoreEl = scoreEl;
     this.bulletContainerEl = bulletContainer;
     this.livesContainerEl = livesContainer;
+    this.currentLives = lives;
+    this.sfxShipShoot = sfxShipShoot;
 
-    for (var i = 0; i < lives; i++)
+    for (var i = 1; i < lives; i++)
         this.livesContainerEl.append('<img src="./images/ship.png"/>');
 
     this.scoreEl.append(this.score);
@@ -20,24 +22,27 @@ var Ship = function(shipEl, scoreEl, bulletContainer, livesContainer, lives, x, 
 Ship.prototype = {
     score: 0,
     bindKeys: function(shipContext, eventManager) {
+        var me = shipContext;
+
         $(document).on('keydown', function(event) {
             if (eventManager.events.gameStart && eventManager.events.playerAlive && !eventManager.events.pause) {
-                shipContext.checkMoveKeys(event, true);
-                shipContext.moveShip(shipContext.shipEl);
+                me.checkMoveKeys(event, true);
+                me.moveShip(me.shipEl);
             }
         });
 
         $(document).on('keyup', function(event) {
             if (eventManager.events.gameStart && eventManager.events.playerAlive && !eventManager.events.pause) {
-                shipContext.checkMoveKeys(event, false);
-                shipContext.moveShip(shipContext.shipEl);
+                me.checkMoveKeys(event, false);
+                me.moveShip(me.shipEl);
             }
         });
 
         $(document).on('keypress', function(event) {
             if (eventManager.events.gameStart && eventManager.events.playerAlive && !eventManager.events.pause)
                 if (event.keyCode === 32 || event.which == 32) {
-                    shipContext.shoot(shipContext.shipEl, shipContext.bulletContainerEl);
+                    me.sfxShipShoot.play();
+                    me.shoot(me.shipEl, me.bulletContainerEl);
                 }
         });
     },
@@ -124,16 +129,31 @@ Ship.prototype = {
             }
         }
     },
-    respawn: function(gameCallback) {
+    respawn: function(shipContext, gameFrameEl, x, y) {
+        var me = shipContext,
+            newShipEl;
+
+        gameFrameEl.append('<div id="ship" class="ship fixed normal-size"></div>');
+        newShipEl = $('#ship');
+        me.shipEl = newShipEl;
+        me.shipEl.velocity({ properties: { left: x, top: y }, options: { duration: 1 } });
+
         if (DEBUG)
             console.log("Ship respawned.");
     },
-    die: function(shipEl, animHelper) {
-        if (DEBUG)
-            console.log("Ship died.");
+    die: function(shipContext, animHelper) {
+        var me = shipContext,
+            shipEl = me.shipEl,
+            livesEls = me.livesContainerEl.children();
 
         shipEl.velocity('stop', true);
         animHelper.addToDeathAnimationQueue(animHelper, shipEl, false);
+
+        me.currentLives--;
+        $(livesEls[livesEls.length - 1]).remove();
+
+        if (DEBUG)
+            console.log("Ship died.");
     },
     pause: function() {
 
@@ -142,5 +162,3 @@ Ship.prototype = {
 
     }
 };
-
-// bulletContainerEl.remove(bulletFocus)

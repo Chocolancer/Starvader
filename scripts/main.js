@@ -7,6 +7,7 @@ var DEBUG = true,
     MAX_STARS = 40,
     MAX_MOOKS = 15,
     MAX_BULLETS_ONSCREEN = 5,
+    MAX_LIVES = 5,
     DEATH_ANIMATION_INTERVAL = 200,
     KEYCODES = {
         UP: 87,
@@ -59,10 +60,16 @@ $(document).on('ready', function(event) {
         mookBulletContainerEl   = $('#mookbulletcontainer'),
         starContainerEl         = $('#starcontainer'),
         shipEl                  = $('#ship'),
+        sfxEnemyDie             = $('#sfx-enemy-die'),
+        sfxEnemyShoot           = $('#sfx-enemy-shoot'),
+        sfxShipDie              = $('#sfx-ship-die'),
+        sfxShipRespawn          = $('#sfx-ship-respawn'),
+        sfxShipShoot            = $('#sfx-ship-shoot'),
         ship,
         mookGenerator,
         starGenerator,
         eventManager,
+        respawnDelayTimer,
         animHelper;
 
     GAMEFRAME = {
@@ -104,7 +111,7 @@ $(document).on('ready', function(event) {
 
             animHelper = new AnimHelper();
             starGenerator = new StarGenerator(starContainerEl);
-            ship = new Ship(shipEl, scoreEl, shipBulletContainerEl, shipLivesContainerEl, 5,
+            ship = new Ship(shipEl, scoreEl, shipBulletContainerEl, sfxShipShoot, shipLivesContainerEl, MAX_LIVES,
                 (GAMEFRAME.RIGHT / 2) - shipEl.width(), GAMEFRAME.BOTTOM - (shipEl.height() * 2));
             mookGenerator = new MookGenerator(mookContainerEl, mookBulletContainerEl);
 
@@ -131,20 +138,29 @@ $(document).on('ready', function(event) {
             if (DEBUG)
                 console.log("Player alive callback has been hit.");
 
-            ship.respawn();
+            clearInterval(respawnDelayTimer);
+
+            debugger;
+            sfxShipRespawn.play();
+            ship.respawn(ship, gameFrameEl, (GAMEFRAME.RIGHT / 2) - shipEl.width(), 
+                GAMEFRAME.BOTTOM - (shipEl.height() * 2));
             mookGenerator.generateMook(mookGenerator);
         },
         playerDead: function() {
             if (DEBUG)
                 console.log("Player dead callback has been hit.");
 
-            ship.die(shipEl, animHelper);
+            sfxShipDie.play();
+            ship.die(ship, animHelper);
             mookGenerator.killAllMooks(mookGenerator, animHelper);
+
+            respawnDelayTimer = setInterval(eventManager.respawnPlayer, 3000);
         },
         mookDead: function(mookEl) {
             if (DEBUG)
                 console.log("Mook killed callback has been hit.");
 
+            sfxEnemyDie.play();
             mookGenerator.killMook(mookEl, animHelper);
             ship.scoreKill(ship);
         }
