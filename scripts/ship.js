@@ -41,7 +41,7 @@ Ship.prototype = {
         $(document).on('keypress', function(event) {
             if (eventManager.events.gameStart && eventManager.events.playerAlive && !eventManager.events.pause)
                 if (event.keyCode === 32 || event.which == 32) {
-                    me.sfxShipShoot.play();
+                    //me.sfxShipShoot.play();
                     me.shoot(me.shipEl, me.bulletContainerEl);
                 }
         });

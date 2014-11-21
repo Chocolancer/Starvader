@@ -141,7 +141,7 @@ $(document).on('ready', function(event) {
             clearInterval(respawnDelayTimer);
 
             debugger;
-            sfxShipRespawn.play();
+            //sfxShipRespawn.play();
             ship.respawn(ship, gameFrameEl, (GAMEFRAME.RIGHT / 2) - shipEl.width(), 
                 GAMEFRAME.BOTTOM - (shipEl.height() * 2));
             mookGenerator.generateMook(mookGenerator);
@@ -150,7 +150,7 @@ $(document).on('ready', function(event) {
             if (DEBUG)
                 console.log("Player dead callback has been hit.");
 
-            sfxShipDie.play();
+            //sfxShipDie.play();
             ship.die(ship, animHelper);
             mookGenerator.killAllMooks(mookGenerator, animHelper);
 
@@ -160,7 +160,7 @@ $(document).on('ready', function(event) {
             if (DEBUG)
                 console.log("Mook killed callback has been hit.");
 
-            sfxEnemyDie.play();
+            //sfxEnemyDie.play();
             mookGenerator.killMook(mookEl, animHelper);
             ship.scoreKill(ship);
         }
