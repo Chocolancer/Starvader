@@ -33,7 +33,7 @@ StarGenerator.prototype = {
                      .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(starEl) { $(starEl).remove(); } }});
         }
     },
-    removeAllStars: function() {
+    removeAllStars: function(starGeneratorContext) {
 
     },
     pause: function() {

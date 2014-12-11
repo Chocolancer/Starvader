@@ -25,23 +25,23 @@ Ship.prototype = {
         var me = shipContext;
 
         $(document).on('keydown', function(event) {
-            if (eventManager.events.gameStart && eventManager.events.playerAlive && !eventManager.events.pause) {
+            if (EVENTS.GAMESTART && EVENTS.PLAYERALIVE && !EVENTS.PAUSE) {
                 me.checkMoveKeys(event, true);
                 me.moveShip(me.shipEl);
             }
         });
 
         $(document).on('keyup', function(event) {
-            if (eventManager.events.gameStart && eventManager.events.playerAlive && !eventManager.events.pause) {
+            if (EVENTS.GAMESTART && EVENTS.PLAYERALIVE && !EVENTS.PAUSE) {
                 me.checkMoveKeys(event, false);
                 me.moveShip(me.shipEl);
             }
         });
 
         $(document).on('keypress', function(event) {
-            if (eventManager.events.gameStart && eventManager.events.playerAlive && !eventManager.events.pause)
-                if (event.keyCode === 32 || event.which == 32) {
-                    //me.sfxShipShoot.play();
+            if (EVENTS.GAMESTART && EVENTS.PLAYERALIVE && !EVENTS.PAUSE)
+                if (event.keyCode === KEYCODES.FIRE || event.which == KEYCODES.FIRE) {
+                    me.sfxShipShoot.trigger('play');
                     me.shoot(me.shipEl, me.bulletContainerEl);
                 }
         });

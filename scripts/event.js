@@ -2,7 +2,6 @@
 // Copyright 2014 Chocolancer; MIT License: http://opensource.org/licenses/MIT
 
 var EventManager = function(callbacks) {
-
     if (callbacks !== undefined)
         for (var cb in callbacks)
             if (this.eventCallbacks.hasOwnProperty(cb))
@@ -16,13 +15,6 @@ var EventManager = function(callbacks) {
 };
 
 EventManager.prototype = {
-    events: {
-        idle: true,
-        pause: false,
-        gameStart: false,
-        playerAlive: false,
-        playerDead: false
-    },
     eventCallbacks: {
         idle: undefined,
         pause: undefined,
@@ -33,38 +25,62 @@ EventManager.prototype = {
         playerDead: undefined
     },
     reset: function() {
-        for (var ev in this.events) {
+        for (var ev in EVENTS) {
             ev = false;
         }
-        this.events.idle = true;
+
         this.eventCallbacks.idle();
+        EVENTS.IDLE = true;
     },
     startGame: function() {
-        this.events.idle = false;
-        this.events.gameStart = true;
-        this.events.playerAlive = true;
-        this.eventCallbacks.gameStart();
-        this.eventCallbacks.playerAlive();
+        if (EVENTS.IDLE && !EVENTS.GAMESTART && !EVENTS.PLAYERALIVE) {
+            this.eventCallbacks.gameStart();
+            this.eventCallbacks.playerAlive();
+            EVENTS.IDLE = false;
+            EVENTS.GAMESTART = true;
+            EVENTS.PLAYERALIVE = true;
+        }
+        else if (DEBUG){
+            console.log("Invalid state change: startGame");
+        }
     },
     respawnPlayer: function() {
-        this.events.playerAlive = true;
-        this.events.playerDead = false;
-        this.eventCallbacks.playerAlive();
+        if (!EVENTS.PLAYERALIVE) {
+            this.eventCallbacks.playerAlive();
+            EVENTS.PLAYERALIVE = true;
+        }
+        else if (DEBUG){
+            console.log("Invalid state change: respawnPlayer");
+        }
     },
     killPlayer: function() {
-        this.events.playerAlive = false;
-        this.events.playerDead = true;
-        this.eventCallbacks.playerDead();
+        if (EVENTS.PLAYERALIVE) {
+            this.eventCallbacks.playerDead();
+            EVENTS.PLAYERALIVE = false;
+        }
+        else if (DEBUG) {
+            console.log("Invalid state change: killPlayer");
+        }
     },
     killMook: function(mookEl) {
         this.eventCallbacks.mookDead(mookEl);
     },
     pauseGame: function() {
-        this.events.pause = true;
-        this.eventCallbacks.pause();
+        if (!EVENTS.PAUSE) {
+            this.eventCallbacks.pause();
+            EVENTS.PAUSE = true;
+        }
+        else if (DEBUG) {
+            console.log("Invalid state change: pauseGame");
+        }
     },
     unpauseGame: function() {
-        this.events.pause = false;
-        this.eventCallbacks.unpause();
+        if (EVENTS.PAUSE) {
+            this.eventCallbacks.unpause();
+            EVENTS.PAUSE = false;
+        }
+        else if (DEBUG) {
+            console.log("Invalid state change: unpauseGame");
+        }
     }
 };

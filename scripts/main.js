@@ -24,6 +24,12 @@ var DEBUG = true,
         65: false,
         68: false
     },
+    EVENTS = {
+        IDLE: true,
+        PAUSE: false,
+        GAMESTART: false,
+        PLAYERALIVE: false
+    },
     NORMAL_DEADFRAME_CLASSES = {
         FRAME0: 'normal-deadframe0',
         FRAME1: 'normal-deadframe1',
@@ -49,6 +55,7 @@ var DEBUG = true,
 
 $(document).on('ready', function(event) {
     var scoreEl                 = $('#score'),
+        gameOverEl              = $('#gameover'),
         gameFrameEl             = $('#gameframe'),
         gameTitleEl             = $('#gametitle'),
         gameInstructionsEl      = $('#gameinstructions'),
@@ -84,12 +91,16 @@ $(document).on('ready', function(event) {
             if (DEBUG)
                 console.log("Reset callback has been hit.");
 
+            // hide elements that shouldn't be seen
+            gameOverEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
+
             // show display elements
             gameFrameEl.removeAttr('class');
             gameTitleEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
             gameInstructionsEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
             gameStartPromptEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
             gameCreditEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
+
 
             if (animHelper)
                 animHelper.stopDeathAnimationCycle(animHelper);
@@ -140,31 +151,39 @@ $(document).on('ready', function(event) {
 
             clearInterval(respawnDelayTimer);
 
-            debugger;
-            //sfxShipRespawn.play();
+            sfxShipRespawn.trigger('play');
             ship.respawn(ship, gameFrameEl, (GAMEFRAME.RIGHT / 2) - shipEl.width(), 
-                GAMEFRAME.BOTTOM - (shipEl.height() * 2));
+                GAMEFRAME.BOTTOM - (GAMEFRAME.BOTTOM / 3));
             mookGenerator.generateMook(mookGenerator);
         },
         playerDead: function() {
             if (DEBUG)
-                console.log("Player dead callback has been hit.");
+            console.log("Player dead callback has been hit.");
 
-            //sfxShipDie.play();
+            sfxShipDie.trigger('play');
             ship.die(ship, animHelper);
             mookGenerator.killAllMooks(mookGenerator, animHelper);
 
-            respawnDelayTimer = setInterval(eventManager.respawnPlayer, 3000);
+            if (ship.currentLives == 0) {
+                gameOverEl.velocity({ properties: { left: GAMEFRAME.LEFT + ((GAMEFRAME.RIGHT / 2) - (gameOverEl.width() / 2)), 
+                    top: GAMEFRAME.TOP + ((GAMEFRAME.BOTTOM / 2) - (gameOverEl.height() / 2)) }, options: { duration: 1 } });
+                gameOverEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
+            }
+            else {
+                respawnDelayTimer = setInterval(function() { eventManager.respawnPlayer(); }, 3000);
+            }
         },
         mookDead: function(mookEl) {
             if (DEBUG)
                 console.log("Mook killed callback has been hit.");
 
-            //sfxEnemyDie.play();
+            sfxEnemyDie.trigger('play');
             mookGenerator.killMook(mookEl, animHelper);
             ship.scoreKill(ship);
         }
     });
+
+    eventManager.context = eventManager;
 
     $(document).on('keypress', function(event) {
         switch (event.keyCode) {
