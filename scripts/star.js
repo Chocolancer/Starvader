@@ -34,12 +34,37 @@ StarGenerator.prototype = {
         }
     },
     removeAllStars: function(starGeneratorContext) {
+        var me = starGeneratorContext,
+            starContainerChildrenEl = me.starContainerEl.children();
 
+        clearInterval(me.starGenerateTimer);
+        for (var i = 0; i < starContainerChildrenEl.length; i++) {
+            starContainerChildrenEl[i].remove();
+        }
     },
-    pause: function() {
+    pause: function(starGeneratorContext) {
+        var me = starGeneratorContext,
+            starContainerChildrenEl = me.starContainerEl.children();
 
+        clearInterval(me.starGenerateTimer);
+        for (var i = 0; i < starContainerChildrenEl.length; i++) {
+            var starFocus = $(starContainerChildrenEl[i]);
+
+            starFocus.velocity('stop', true);
+        }
     },
-    unpause: function() {
+    unpause: function(starGeneratorContext) {
+        var me = starGeneratorContext,
+            starContainerChildrenEl = me.starContainerEl.children(),
+            randomSpeed = Math.ceil(Math.random() * 2000 + 750);
 
+        me.generateStars(starGeneratorContext);
+        for (var i = 0; i < starContainerChildrenEl.length; i++) {
+            var starFocus = $(starContainerChildrenEl[i]);
+
+            starFocus.velocity( { properties: { opacity: 1 }, options: { duration: 1 }})
+                     .velocity( { properties: { translateY: GAMEFRAME.BOTTOM - SCREEN_OFFSET }, options: { duration: randomSpeed }})
+                     .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(starEl) { $(starEl).remove(); } }});
+        }
     }
 };

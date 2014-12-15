@@ -66,7 +66,7 @@ EventManager.prototype = {
         this.eventCallbacks.mookDead(mookEl);
     },
     pauseGame: function() {
-        if (!EVENTS.PAUSE) {
+        if (!EVENTS.PAUSE && EVENTS.PLAYERALIVE) {
             this.eventCallbacks.pause();
             EVENTS.PAUSE = true;
         }
@@ -75,7 +75,7 @@ EventManager.prototype = {
         }
     },
     unpauseGame: function() {
-        if (EVENTS.PAUSE) {
+        if (EVENTS.PAUSE && EVENTS.PLAYERALIVE) {
             this.eventCallbacks.unpause();
             EVENTS.PAUSE = false;
         }

@@ -1,6 +1,15 @@
 // STARVADER: A simple shoot-'em-up using DOM in jQuery and Velocity.js
 // Copyright 2014 Chocolancer; MIT License: http://opensource.org/licenses/MIT
 
+//OUTSTANDING:
+// - DOM issue where ship explodes randomly. Need to split where ship and mook elements are created
+// - implement pause
+// - implement game over animation and reset
+// - implement big mook
+// - evaluate if object creation logic is good
+// - difficulty slider
+// - sound manager
+
 // KEYS AND LOGICAL CONSTANTS
 var DEBUG = true,
     SCREEN_OFFSET = 10,
@@ -15,8 +24,8 @@ var DEBUG = true,
         LEFT: 65,
         RIGHT: 68,
         FIRE: 32,
-        PAUSE: 112,
-        START: 13
+        PAUSE: 112, // default P
+        START: 13 // default ENTER
     },
     KEYS_HELD = {
         87: false,
@@ -56,6 +65,7 @@ var DEBUG = true,
 $(document).on('ready', function(event) {
     var scoreEl                 = $('#score'),
         gameOverEl              = $('#gameover'),
+        pausedEl                = $('#paused'),
         gameFrameEl             = $('#gameframe'),
         gameTitleEl             = $('#gametitle'),
         gameInstructionsEl      = $('#gameinstructions'),
@@ -66,7 +76,6 @@ $(document).on('ready', function(event) {
         mookContainerEl         = $('#mookcontainer'),
         mookBulletContainerEl   = $('#mookbulletcontainer'),
         starContainerEl         = $('#starcontainer'),
-        shipEl                  = $('#ship'),
         sfxEnemyDie             = $('#sfx-enemy-die'),
         sfxEnemyShoot           = $('#sfx-enemy-shoot'),
         sfxShipDie              = $('#sfx-ship-die'),
@@ -93,6 +102,7 @@ $(document).on('ready', function(event) {
 
             // hide elements that shouldn't be seen
             gameOverEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
+            pausedEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
 
             // show display elements
             gameFrameEl.removeAttr('class');
@@ -122,8 +132,7 @@ $(document).on('ready', function(event) {
 
             animHelper = new AnimHelper();
             starGenerator = new StarGenerator(starContainerEl);
-            ship = new Ship(shipEl, scoreEl, shipBulletContainerEl, sfxShipShoot, shipLivesContainerEl, MAX_LIVES,
-                (GAMEFRAME.RIGHT / 2) - shipEl.width(), GAMEFRAME.BOTTOM - (shipEl.height() * 2));
+            ship = new Ship(scoreEl, shipBulletContainerEl, sfxShipShoot, shipLivesContainerEl, MAX_LIVES);
             mookGenerator = new MookGenerator(mookContainerEl, mookBulletContainerEl);
 
             ship.bindKeys(ship, eventManager);
@@ -133,17 +142,25 @@ $(document).on('ready', function(event) {
             if (DEBUG)
                 console.log("Pause callback has been hit.");
 
-            ship.pause();
-            mookGenerator.pause();
-            starGenerator.pause();
+            starGenerator.pause(starGenerator);
+            ship.pause(ship);
+            mookGenerator.pause(mookGenerator);
+            animHelper.pause(animHelper);
+
+            pausedEl.velocity({ properties: { left: GAMEFRAME.LEFT + ((GAMEFRAME.RIGHT / 2) - (pausedEl.width() / 2)), 
+                    top: GAMEFRAME.TOP + ((GAMEFRAME.BOTTOM / 2) - (pausedEl.height() / 2)) }, options: { duration: 1 } })
+                    .velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
         },
         unpause: function() {
             if (DEBUG)
                 console.log("Unpause callback has been hit.");
 
-            ship.pause();
-            mookGenerator.pause();
-            starGenerator.pause();
+            starGenerator.unpause(starGenerator);
+            ship.unpause(ship, eventManager);
+            mookGenerator.unpause(mookGenerator);
+            animHelper.unpause(animHelper);
+
+            pausedEl.velocity({ properties: { opacity: 0 }, options: { duration: 1 } });
         },
         playerAlive: function() {
             if (DEBUG)
@@ -152,9 +169,8 @@ $(document).on('ready', function(event) {
             clearInterval(respawnDelayTimer);
 
             sfxShipRespawn.trigger('play');
-            ship.respawn(ship, gameFrameEl, (GAMEFRAME.RIGHT / 2) - shipEl.width(), 
+            ship.respawn(ship, eventManager, mookGenerator, gameFrameEl, (GAMEFRAME.RIGHT / 2),
                 GAMEFRAME.BOTTOM - (GAMEFRAME.BOTTOM / 3));
-            mookGenerator.generateMook(mookGenerator);
         },
         playerDead: function() {
             if (DEBUG)
@@ -166,8 +182,8 @@ $(document).on('ready', function(event) {
 
             if (ship.currentLives == 0) {
                 gameOverEl.velocity({ properties: { left: GAMEFRAME.LEFT + ((GAMEFRAME.RIGHT / 2) - (gameOverEl.width() / 2)), 
-                    top: GAMEFRAME.TOP + ((GAMEFRAME.BOTTOM / 2) - (gameOverEl.height() / 2)) }, options: { duration: 1 } });
-                gameOverEl.velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
+                    top: GAMEFRAME.TOP + ((GAMEFRAME.BOTTOM / 2) - (gameOverEl.height() / 2)) }, options: { duration: 1 } })
+                          .velocity({ properties: { opacity: 1 }, options: { duration: 1 } });
             }
             else {
                 respawnDelayTimer = setInterval(function() { eventManager.respawnPlayer(); }, 3000);
@@ -191,10 +207,10 @@ $(document).on('ready', function(event) {
                 eventManager.startGame();
                 break;
             case KEYCODES.PAUSE:
-                if (eventManager.event.pause)
-                    eventManager.unpause();
+                if (EVENTS.PAUSE)
+                    eventManager.unpauseGame();
                 else
-                    eventManager.pause();
+                    eventManager.pauseGame();
                 break;
         }
     });

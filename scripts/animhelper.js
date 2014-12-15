@@ -64,5 +64,15 @@ AnimHelper.prototype = {
             if (replacingClass)
                 classArray.push(replacingClass);
         }
+    },
+    pause: function(animHelperContext) {
+        var me = animHelperContext;
+
+        clearInterval(me.deathAnimationTimer);
+    },
+    unpause: function(animHelperContext) {
+        var me = animHelperContext;
+
+        me.deathAnimationTimer = setInterval(function() { me.checkDeathAnimations(me); }, DEATH_ANIMATION_INTERVAL);
     }
 };

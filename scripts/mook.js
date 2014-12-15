@@ -56,10 +56,30 @@ MookGenerator.prototype = {
         for (var j = 0; j < mooksEl.length; j++)
             me.killMook($(mooksEl[j]), animHelper);
     },
-    pause: function() {
+    pause: function(mookGeneratorContext) {
+        var me = mookGeneratorContext,
+            mookContainerChildrenEl = me.mookContainerEl.children();
 
+        clearInterval(me.mookGenerateTimer);
+        for (var i = 0; i < mookContainerChildrenEl.length; i++) {
+            var mookFocus = $(mookContainerChildrenEl[i]);
+
+            mookFocus.velocity('stop', true);
+        }
     },
-    unpause: function() {
+    unpause: function(mookGeneratorContext) {
+        var me = mookGeneratorContext,
+            mookContainerChildrenEl = me.mookContainerEl.children();
 
+        me.generateMook(mookGeneratorContext);
+        for (var i = 0; i < mookContainerChildrenEl.length; i++) {
+            var mookFocus = $(mookContainerChildrenEl[i]),
+                mookDistanceLeft = mookFocus.position().top / (GAMEFRAME.BOTTOM - mookFocus.height()),
+                randomSpeed = (Math.ceil(Math.random() * 10000 + 2000)) * mookDistanceLeft;
+
+            mookFocus.velocity( { properties: { opacity: 1 }, options: { duration: 1 }})
+                     .velocity( { properties: { top: GAMEFRAME.BOTTOM - mookFocus.height() }, options: { duration: randomSpeed }})
+                     .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(mookEl) { $(mookEl).remove(); } }});
+        }
     }
 };

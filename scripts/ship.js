@@ -1,8 +1,7 @@
 // STARVADER: A simple shoot-'em-up using DOM in jQuery and Velocity.js
 // Copyright 2014 Chocolancer; MIT License: http://opensource.org/licenses/MIT
 
-var Ship = function(shipEl, scoreEl, bulletContainer, sfxShipShoot, livesContainer, lives, x, y) {
-    this.shipEl = shipEl;
+var Ship = function(scoreEl, bulletContainer, sfxShipShoot, livesContainer, lives) {
     this.scoreEl = scoreEl;
     this.bulletContainerEl = bulletContainer;
     this.livesContainerEl = livesContainer;
@@ -13,7 +12,6 @@ var Ship = function(shipEl, scoreEl, bulletContainer, sfxShipShoot, livesContain
         this.livesContainerEl.append('<img src="./images/ship.png"/>');
 
     this.scoreEl.append(this.score);
-    this.shipEl.velocity({ properties: { left: x, top: y }, options: { duration: 1 } });
 
     if (DEBUG)
         console.log("Ship object created.");
@@ -45,6 +43,9 @@ Ship.prototype = {
                     me.shoot(me.shipEl, me.bulletContainerEl);
                 }
         });
+    },
+    unbindKeys: function(shipContext) {
+
     },
     checkMoveKeys: function(event, keyIsHeld) {
         if (event.keyCode in KEYS_HELD)
@@ -109,6 +110,12 @@ Ship.prototype = {
             me.checkBulletCollision(me.bulletContainerEl, eventManager);
         }, 20);
     },
+    unbindCollisions: function(shipContext) {
+        var me = shipContext;
+
+        clearInterval(me.shipCollisionChecker);
+        clearInterval(me.bulletCollisionChecker);
+    },
     checkShipCollision: function(shipEl) {
         var mookCollision = shipEl.collision('.mook'),
             mookBulletCollisions = shipEl.collision('.mookbullet'),
@@ -129,14 +136,15 @@ Ship.prototype = {
             }
         }
     },
-    respawn: function(shipContext, gameFrameEl, x, y) {
-        var me = shipContext,
-            newShipEl;
+    respawn: function(shipContext, eventManager, mookGenerator, gameFrameEl, x, y) {
+        var me = shipContext;
 
         gameFrameEl.append('<div id="ship" class="ship fixed normal-size"></div>');
-        newShipEl = $('#ship');
-        me.shipEl = newShipEl;
-        me.shipEl.velocity({ properties: { left: x, top: y }, options: { duration: 1 } });
+        me.shipEl = $('#ship');
+        me.shipEl.velocity({ properties: { left: (x - me.shipEl.width()), top: y }, options: { duration: 1, complete: function() {
+            me.bindCollisions(me, eventManager);
+            mookGenerator.generateMook(mookGenerator);
+        } } });
 
         if (DEBUG)
             console.log("Ship respawned.");
@@ -147,6 +155,7 @@ Ship.prototype = {
             livesEls = me.livesContainerEl.children();
 
         shipEl.velocity('stop', true);
+        me.unbindCollisions(me);
         animHelper.addToDeathAnimationQueue(animHelper, shipEl, false);
 
         me.currentLives--;
@@ -155,10 +164,34 @@ Ship.prototype = {
         if (DEBUG)
             console.log("Ship died.");
     },
-    pause: function() {
+    pause: function(shipContext) {
+        var me = shipContext,
+            bulletContainerChildrenEl = me.bulletContainerEl.children();
 
+        me.unbindCollisions(me);
+
+        for (var key in KEYS_HELD) {
+            KEYS_HELD[key] = false;
+        }
+
+        for (var i = 0; i < bulletContainerChildrenEl.length; i++) {
+            var bulletFocus = $(bulletContainerChildrenEl[i]);
+
+            bulletFocus.velocity('stop', true);
+        }
     },
-    unpause: function() {
+    unpause: function(shipContext, eventManager) {
+        var me = shipContext,
+            shipPosition = me.shipEl.position(),
+            bulletContainerChildrenEl = me.bulletContainerEl.children();
 
+        me.bindCollisions(shipContext, eventManager);
+        for (var i = 0; i < bulletContainerChildrenEl.length; i++) {
+            var bulletFocus = $(bulletContainerChildrenEl[i]);
+
+            bulletFocus.velocity( { properties: { opacity: 1 }, options: { duration: 1 }})
+                       .velocity( { properties: { top: 0 }, options: { duration: GAMEFRAME.BOTTOM * (bulletFocus.position().top / GAMEFRAME.BOTTOM) }})
+                       .velocity( { properties: { opacity: 0 }, options: { duration: 1, complete: function(bulletEl) { $(bulletEl).remove(); } }});
+        }
     }
 };
